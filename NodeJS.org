@@ -1,9 +1,9 @@
 # -*- mode:org; -*-
 #+title:Node.js
 #+subtitle:JavaScript on the Server --- {{{version}}} ({{{date}}})
-#+date:2019-10-01 22:42
+#+date:2019-10-02 09:12
 #+author:Pinecone062
-#+macro: version Version 0.0.1
+#+macro: version Version 0.0.2
 
 #+begin_src emacs-lisp :results silent :exports results
 (org-babel-tangle-file "NodeJS.org")
@@ -76,8 +76,6 @@ where your saved file is located and type ~node hello.js~ to run the
 application.  The result is printed out to the command line, via the
 ~console.log()~ function call in the application.
 
-src_elisp[:results silent]{(shell-command "node src/hello.js&")}
-
 - start server process: [[shell:node src/hello.js&]]
 - open web browser:     [[http://localhost:8124]]
 - kill server process:  [[shell:pkill node]]
@@ -137,6 +135,67 @@ the browser, writes out the Hello World message, and then ends the
 response.
 
 ** Hello World Tweaked
+The tweaked code is in [[Example 1-2]].  In it, the application code is
+modified to parse the incoming request to look for a query string.
+The name in the string is extracted and used to determine the type of
+content returned.  Almost any name will return a personalized
+response, but if you use ~name=burningbird~ as the query, you’ll get
+an image.  If no query string is used, or no name passed, the name
+variable is set to =world=.
+
+#+caption:Example 1-2
+#+name:Example 1-2
+#+begin_src js -n :tangle src/hello-tweaked.js
+  var http = require('http');
+  var fs = require('fs');
+
+  http.createServer(function (req, res) {
+     var name = require('url').parse(req.url, true).query.name;
+
+     if (name === undefined) name = 'world';
+
+     if (name == 'burningbird') {
+        var file = './resources/phoenix5a.png';
+        fs.stat(file, function (err, stat) {
+           if (err) {
+              console.error(err);
+              res.writeHead(200, {'Content-Type': 'text/plain'});
+              res.end("Sorry, Burningbird isn't around right now \n");
+           } else {
+              var img = fs.readFileSync(file);
+              res.contentType = 'image/png';
+              res.contentLength = stat.size;
+              res.end(img, 'binary');
+           }
+        });
+     } else {
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.end('Hello ' + name + '\n');
+     }
+  }).listen(8124);
+
+  console.log('Server running at port 8124/');
+#+end_src
+
+- Start tweaked hello server     [[shell:node src/hello-tweaked.js&]]
+- Open tweaked hello in browser: [[http:localhost:8124/?name=burningbird]]
+- Kill tweaked hello server      [[shell:pkill -f node]]
+
+
+Not much extra code, but there are several differences between the
+basic Hello World application and the tweaked version.  From the top,
+a new module is included in the application, named ~fs~.  This is the
+File System module.
+
+There’s also another module imported, but not in the same way as the
+other two:
+
+: var name = require('url').parse(req.url, true).query.name;
+
+Exported module properties can be chained, so we can both import the
+module and use its functions in the same line.  This frequently
+happens with the URL module, whose only purpose is to provide a URL
+utility.
 
 * Global Objects
 
@@ -161,6 +220,293 @@ response.
 * Full Stack Development
 
 * Development and Production Environments
+
+* Resources
+:PROPERTIES:
+:appendix: t
+:END:
+
+** Node.js Source
+- https://github.com/nodejs/node
+
+
+“Node.js is a JavaScript runtime built on Chrome's V8 JavaScript
+engine.”
+
+** Code Resources
+Supplemental material (code examples, exercises, etc.) is available
+for download at:
+
+- https://github.com/shelleyp/LearningNode2g
+
+* Node.js Version X
+:PROPERTIES:
+:appendix: t
+:END:
+
+** Node.js v10
+- https://blog.risingstack.com/node-js-10-lts-feature-breakdown/
+
+
+{{{heading(New Features List)}}}
+
+- Stable HTTP/2 in Node 10.
+
+  With Node v10 the ~http2~ module has become a stable addition to the
+  Node core.  You can use it on its own:
+  - [[https://blog.risingstack.com/node-js-http-2-push/][HTTP/2 Server Push with Node.js]]
+
+- ECMAScript Modules---ESM
+
+  The problem is that the two module systems are not compatible so the
+  Modules Team had to find a proper solution so JavaScript modules
+  could be built in a platform agnostic way and could be used both in
+  Node and in browsers.  Node.js v10 does not bring the full
+  implementation of ESMs, but we will definitely see rapid iterations
+  regarding the topic.
+
+  See also [[https://exploringjs.com/impatient-js/ch_modules.html][Modules]]
+
+- Error Codes
+
+  In Node.js v10 all errors thrown by the Node.js APIs have an error
+  code as well, meaning you don’t need to match the error message that
+  should be readable for humans to begin with.
+
+- Experimental fs Promises
+
+  Node.js v8 introduced ~util.promisify~ to easily wrap functions that
+  provide a callback API.  In the latest release functions of the ~fs~
+  return promises directly, eliminating the extra step and overhead of
+  the old way.
+
+- N-API
+
+  The N-API provides an abstraction layer over the V8 / NAN APIs so
+  changes in those can be handled in a higher level layer, resulting
+  in a more stable surface that native addon developers can use.  So
+  far it was an experimental feature, but it has been promoted to
+  stable in Node v10.
+
+- V8 6.6
+
+  Node.js is shipped with the V8 v6.6 that brings async generators and
+  array performance improvements.  ~Array.reduce~ has become 10 times
+  faster for holey double arrays.  The performance of async generators
+  and async iteration has also been increased by a great margin.
+
+  The new release provides new JavaScript language features as
+  well. The full list can be found [[https://v8.dev][here]].
+
+** Node.js v12
+*** New Features You Shouldn’t Miss
+- https://blog.risingstack.com/node-js-12-new-features/
+
+- V8 updated to version 7.4
+
+  - Async stack traces arrived
+
+  - Faster async/await implementation
+
+  - New JavaScript language features
+
+  - Performance tweaks & improvements
+
+  - Progress on Worker threads, N-API
+
+- Default HTTP parser switched to llhttp
+
+- New experimental “Diagnostic Reports” feature
+
+
+{{{heading(assert module adjustments in Node 12)}}}
+
+Starting from v12.0.0 the assertion methods validate the required
+arguments.  Instead of returning a misleading =ERR_ASSERTION= error,
+the methods indicate if there are arguments missing with the
+=ERR_MISSING_ARGS= error code.
+
+{{{heading(TLS 1.3 is now default in Node.js 12)}}}
+
+[[https://www.ssl.com/blogs/need-know-tls-1-3/][TLS 1.3]] is now the default max protocol supported by Node.js.
+
+After 8 years, TLS has been updated and it offers enhanced security
+and performance.  Support for RSA has been removed because of its
+history of bugs and it also did not support forward secrecy.  The
+protocol also got safer cipher options and modes while halved the
+number of handshake roundtrips contrary to its 1.2 predecessor which
+required two roundtrips.
+
+{{{heading(JavaScript Language Features)}}}
+
+{{{subheading(Async Stack Traces)}}}
+
+So far, developers faced the problem of V8 truncating the stack trace
+up to the most recent await.  Thanks to a recent update to the engine,
+Node.js now tracks the asynchronous call frames in the ~error.stack~
+property.
+
+#+begin_src js -n
+async function wait_1(x) {
+ await wait_2(x)
+}
+
+async function wait_2(x) {
+ await wait_3(x);
+}
+
+async function wait_3(x) {
+ await x;
+
+ throw new Error("Oh boi")
+}
+
+wait_1(1).catch(e => console.log(e.stack));
+#+end_src
+
+This code example prints the following outputs before and after async
+stack traces got into Node.js.
+
+#+caption:Under Node.js v11.14.0
+#+name:under-node.js-v11.14.0
+[[file:resources/03-async-error-Nodejs-v11.14.png]]
+
+#+caption:Under Node.js v12.0.0
+#+name:under-node.js-v12.0.0
+[[file:resources/04-async-error-Nodejs-v12.png]]
+
+{{{subheading(Public Class Fields)}}}
+
+Instead of listing all variables with default values in the
+constructor, you can define them on the class level.
+
+#+caption:Public Class Fields under v10
+#+name:public-class-fields-under-v10
+#+begin_src js -n
+class Vehicle {
+ constructor(type) {
+   this.type = type;
+   this.speed = 80;
+ }
+}
+#+end_src
+
+Thus, you can omit the constructor if no parameter is needed or just
+focus on the required variables on initialization.
+
+#+caption:Public Class Fields under v12
+#+name:public-class-fields-under-v12
+#+begin_src js -n
+class Vehicle2 {
+ speed = 80;
+
+ constructor(type) {
+   this.type = type;
+ }
+}
+#+end_src
+
+{{{subheading(Private Class Fields)}}}
+
+JavaScript brought in the concept of private class fields which
+finally landed in Node.js v12.  To mark fields private just give them
+a name starting with =#=.  If You try to access a private field
+outside of the class it throws a =SyntaxError= error.
+
+#+caption:Private Class Fields in v12
+#+name:private-class-fields-in-v12
+#+begin_src js -n
+class Counter {
+ #count = 0
+
+ increment() {
+   this.#count++;
+ }
+
+ get value() {
+   return this.#count;
+ }
+}
+
+const counter = new Counter()
+counter.increment()
+counter.value // 1
+
+counter.#value // SyntaxError
+#+end_src
+
+{{{heading(llhttp parser in Node.js 12)}}}
+
+llhttp is a port of http_parser that improves on maintainability and
+benchmark results. The library claims to be faster by 116%.
+
+{{{heading(Diagnostic Reports)}}}
+
+- [[https://github.com/nodejs/node-report][node-report]]
+
+This utility tool is known as ~node-report~ that was recently brought
+into the Node.js core.  It helps to detect abnormal terminations,
+memory leaks, high CPU usage, unexpected errors and more.
+
+Run the ~node --experimental-report --report-on-fatalerror index.js~
+to get a JSON summary on native stack traces, heap statistics,
+resource usage, etc.
+
+Node.js got a bunch of diagnostic utilities in the recent versions to
+aid the investigation on errors and bottlenecks that are difficult to
+pinpoint. If you want to create runtime statistics of the heap usage
+you can do that by calling v8.getHeapSnapshot() that was added in
+v11.13.0.
+
+{{{heading(Worker threads in Node 12)}}}
+
+The ~worker_threads~ module got into Node.js in v10.5.0.  It’s still
+in experimental but a lot of effort has gone into its progress.
+Node.js was designed single-threaded which fits I/O heavy use cases
+well.  CPU heavy operations, however, increase execution time and lead
+to slow performance.
+
+Now, [[https://12factor.net][12factor]] says that these long-running operations should be
+offloaded to individual processes. However, this might not be a valid
+solution, when you need to expose the result of CPU heavy computations
+such as data-mining and crypto over HTTP. Workers open the possibility
+to utilize more threads at once to execute these actions parallel.
+
+It’s not a stable solution though but it might be game-changing for
+the Node.js community. Workers offer Node.js an opportunity to become
+a player on the field of data science beside R, Scala, Python and
+more.
+
+* Node Version Manager---nvm
+:PROPERTIES:
+:appendix: t
+:END:
+- [[https://github.com/nvm-sh/nvm]]
+
+“Node Version Manager - POSIX-compliant bash script to manage multiple
+active node.js versions”
+
+* V8 and NAN
+:PROPERTIES:
+:appendix: t
+:END:
+
+** About V8
+
+*** Getting started with embedding V8
+- https://v8.dev/docs/embed
+
+*** V8 Documentation
+- https://v8docs.nodesource.com
+
+*** V8 Home
+- https://v8.dev
+
+** Node Addon Documentation
+- https://nodejs.org/api/addons.html
+
+** NAN
+- https://github.com/nodejs/nan
 
 * Concept Index
 :PROPERTIES:
