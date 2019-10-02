@@ -1,0 +1,178 @@
+# -*- mode:org; -*-
+#+title:Node.js
+#+subtitle:JavaScript on the Server --- {{{version}}} ({{{date}}})
+#+date:2019-10-01 22:42
+#+author:Pinecone062
+#+macro: version Version 0.0.1
+
+#+begin_src emacs-lisp :results silent :exports results
+(org-babel-tangle-file "NodeJS.org")
+#+end_src
+
+* Introduction to Node.js
+:PROPERTIES:
+:unnumbered: t
+:END:
+
+[[file:resources/nodejs-new-pantone-black-25.png]]
+
+#+cindex:V8 engine
+“Node.js is a JavaScript runtime built on Chrome's V8 JavaScript
+engine.”
+
+“Learn how to write fast, highly scalable network applications on a
+JavaScript-based platform.”
+
+{{{heading(Event-Driven Asynchronous I/O Model Designed for Scalable
+Network Applications)}}}
+
+As an asynchronous event-driven JavaScript runtime, Node.js is
+designed to build scalable network applications.  Users of Node.js are
+free from worries of dead-locking the process, since there are no
+locks. Almost no function in Node.js directly performs I/O, so the
+process never blocks. Because nothing blocks, scalable systems are
+very reasonable to develop in Node.js.
+
+#+cindex:event model
+#+cindex:event loop
+Node.js takes the event model a bit further.  It presents an event
+loop as a runtime construct instead of as a library.  In other
+systems, there is always a blocking call to start the event-loop.  In
+Node.js, there is no such start-the-event-loop call.  Node.js simply
+enters the event loop after executing the input script.  Node.js exits
+the event loop when there are no more callbacks to perform.
+
+HTTP is a first-class citizen in Node.js, designed with streaming and
+low latency in mind. This makes Node.js well suited for the foundation
+of a web library or framework.
+
+** The Node Environment
+Node is primarily used in server applications, but Node can be
+installed on almost any machine and used for any purpose.
+
+** Install Node.js
+- [[https://nodejs.org/en/download/][Downloads page]]
+
+** Say Hello in Node
+Take a look at the “Hello, World” application included in the Node
+documentation.  To re-create the application, create a text document
+with the following JavaScript and save it as ~hello.js~.
+
+#+caption:Node’s Hello World
+#+name:node-hello-world
+#+header: :mkdirp yes
+#+begin_src js -n :tangle src/hello.js
+  var http = require('http');
+  http.createServer(function (request, response) {
+      response.writeHead(200, {'Content-Type': 'text/plain'});
+      response.end('Hello World\n');
+  }).listen(8124);
+
+  console.log('Server running at http://127.0.0.1:8124/');
+#+end_src
+
+To run the application, open a terminal and change to the directory
+where your saved file is located and type ~node hello.js~ to run the
+application.  The result is printed out to the command line, via the
+~console.log()~ function call in the application.
+
+src_elisp[:results silent]{(shell-command "node src/hello.js&")}
+
+- start server process: [[shell:node src/hello.js&]]
+- open web browser:     [[http://localhost:8124]]
+- kill server process:  [[shell:pkill node]]
+
+
+Here, JavaScript creates a web server that displays a web page with
+the words “Hello World” when accessed via a browser.  It demonstrates
+several key components of a Node application.
+
+First, it includes the module necessary to run a simple HTTP server:
+the appropriately named =HTTP= module.
+
+: var http = require('http');
+
+External functionality for Node is incorporated via modules that
+export specific types of functionality that can then be used in an
+application (or another module).  They’re very similar to the
+libraries you’ve used in other languages.
+
+The module is imported using the Node ~require~ statement, and the
+result assigned to a local variable.  Once imported, the local
+variable can be used to instantiate the web server, via the
+~http.createServer()~ function.  In the function parameters, we see
+one of the fundamental constructs of Node: the callback ([[Example 1-1]]).
+It’s the anonymous function that’s passing the web request and
+response into the code to process the web request and provide a
+response.
+
+#+caption:Example of a callback function
+#+name:Example 1-1
+#+begin_src js -n
+  http.createServer(function (request, response) {
+      response.writeHead(200, {'Content-Type': 'text/plain'});
+      response.end('Hello World\n');
+  }).listen(8124);
+#+end_src
+
+#+cindex:event loop
+#+cindex:single-thread
+#+cindex:asynchronous environment
+#+cindex:callback function
+JavaScript is single-threaded, and the way Node emulates an
+asynchronous environment in a single-threaded environment is via an
+event loop, with associated callback functions that are called once a
+specific event has been triggered.  In [[Example 1-1]], when a web request
+is received, the callback function is called.
+
+The ~console.log()~ message is output to the terminal as soon as the
+call to create the server is made.  The program doesn’t stop and
+block, waiting for a web request to be made.
+
+: console.log('Server running at http://127.0.0.1:8124/');
+
+Once the server is created and has received a request, the callback
+function writes a plain text header with server status of 200 back to
+the browser, writes out the Hello World message, and then ends the
+response.
+
+** Hello World Tweaked
+
+* Global Objects
+
+* Events
+
+* Asynchronous Model
+
+* Model System and Package Manager
+
+* REPL and Console
+
+* HTTP Module and Servers
+
+* Local System
+
+* Networking---Sockets---Security
+
+* Child Processes
+
+* ECMAScript 6
+
+* Full Stack Development
+
+* Development and Production Environments
+
+* Concept Index
+:PROPERTIES:
+:unnumbered: t
+:index:    cp
+:END:
+* Macro Definitions                                                :noexport:
+#+macro:heading @@texinfo:@heading @@$1
+#+macro:subheading @@texinfo:@subheading @@$1
+* Local Variables                                                  :noexport:
+# Local Variables:
+# time-stamp-pattern:"8/^\\#\\+date:%4:y-%02m-%02d %02H:%02M$"
+# eval: (electric-quote-local-mode)
+# eval: (org-indent-mode)
+# End:
