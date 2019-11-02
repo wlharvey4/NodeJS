@@ -1,9 +1,9 @@
 # -*- mode:org; -*-
 #+title:Node.js
 #+subtitle:JavaScript on the Server --- {{{version}}} ({{{date}}})
-#+date:2019-10-02 09:12
+#+date:2019-11-01 17:40
 #+author:Pinecone062
-#+macro: version Version 0.0.2
+#+macro: version Version 0.0.3
 
 #+begin_src emacs-lisp :results silent :exports results
 (org-babel-tangle-file "NodeJS.org")
@@ -220,6 +220,72 @@ utility.
 * Full Stack Development
 
 * Development and Production Environments
+
+* Debugging Guide
+
+** Inspector
+#+cindex:debugging client
+#+cindex:@option{--inspect} option
+- {{{option(--inspect)}}} :: When started with the
+     {{{option(--inspect)}}} switch, a Node.js process listens for a
+     debugging client.  By default, it will listen at host and port
+     =127.0.0.1:9229=.  Each process is also assigned a unique UUID.
+
+     #+cindex:Inspector client
+     #+cindex:UUID
+- Inspector client :: Inspector clients must know and specify host
+     address, port, and UUID[fn:1] to connect. A full URL will look
+     something like:
+     : ws://127.0.0.1:9229/0f2c936f-b1cd-4ac9-aab3-f63b0f33d55e
+
+     #+cindex:@code{SIGUSR1} client
+- =SIGUSR1= signal :: Node.js will also start listening for debugging
+     messages if it receives a =SIGUSR1= signal.  In Node.js 8 and
+     later, it will activate the Inspector API.
+
+** Inspector Clients
+Several commercial and open source tools can connect to Node's
+Inspector.  Basic info on these follows:
+
+*** node-inspect
+
+*** Chrome DevTools 55+
+
+*** Visual Studio Code 1.10+
+
+*** Visual Studio 2017
+
+*** JetBrains WebStorm 2017.1+ and other JetBrains IDEs
+
+*** chrome-remote-interface
+
+*** Gitpod
+
+*** Eclipse IDE with Eclipse Wild Web Developer extension
+
+** Command-Line Options
+- --inspect ::
+
+  - Enable inspector agent
+
+  - Listen on default address and port (127.0.0.1:9229)
+
+- --inspect=[host:port] ::
+
+  - Enable inspector agent
+
+  - Bind to address or hostname host (default: 127.0.0.1)
+
+
+  - Listen on port port (default: 9229)
+
+- --inspect-brk ::
+
+- --inspect-brk[host:port] ::
+
+- node inspect <script.js> ::
+
+- node inspect -- port=xxx <script.js> :: 
 
 * Resources
 :PROPERTIES:
@@ -517,6 +583,13 @@ active node.js versions”
 #+macro:heading @@texinfo:@heading @@$1
 #+macro:subheading @@texinfo:@subheading @@$1
 * Local Variables                                                  :noexport:
+
+* Footnotes
+
+[fn:1] https://tools.ietf.org/html/rfc4122A 
+
+   Universally Unique IDentifier (UUID) URN Namespace.  A UUID is 128
+   bits long, and can guarantee uniqueness across space and time.
 # Local Variables:
 # time-stamp-pattern:"8/^\\#\\+date:%4:y-%02m-%02d %02H:%02M$"
 # eval: (electric-quote-local-mode)
