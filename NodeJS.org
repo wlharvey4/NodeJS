@@ -1,9 +1,9 @@
 # -*- mode:org; -*-
-#+title:Node.js
-#+subtitle:JavaScript on the Server --- {{{version}}} ({{{date}}})
-#+date:2019-11-01 17:40
+#+title:Node.js and Chrome Dev Tools
+#+subtitle:JavaScript on the Server and in the Browser --- {{{version}}} ({{{date}}})
+#+date:2019-11-01 18:24
 #+author:Pinecone062
-#+macro: version Version 0.0.3
+#+macro: version Version 0.0.5
 
 #+begin_src emacs-lisp :results silent :exports results
 (org-babel-tangle-file "NodeJS.org")
@@ -222,6 +222,7 @@ utility.
 * Development and Production Environments
 
 * Debugging Guide
+- https://nodejs.org/en/docs/guides/debugging-getting-started/
 
 ** Inspector
 #+cindex:debugging client
@@ -573,6 +574,111 @@ active node.js versions”
 
 ** NAN
 - https://github.com/nodejs/nan
+
+* Chrome DevTools
+
+Tools for Web Developers
+
+- https://developers.google.com/web/tools/chrome-devtools
+
+- https://youtu.be/VYyQv0CSZOE
+
+
+#+cindex:DevTools
+Chrome DevTools is a set of web developer tools built directly into
+the Google Chrome browser.  DevTools can help you edit pages
+on-the-fly and diagnose problems quickly, which ultimately helps you
+build better websites, faster.
+
+- Device Mode
+- Elements panel
+- Console panel
+- Sources panel
+- Network panel
+- Performance panel
+- Memory panel
+- Application panel
+- Security panel
+
+** Getting Started
+If you're a more experienced web developer, here are the recommended
+starting points for learning how DevTools can improve your
+productivity:
+
+- View and Change the DOM
+  - https://developers.google.com/web/tools/chrome-devtools/dom/
+
+ - View and Change a Page's Styles (CSS)
+   - https://developers.google.com/web/tools/chrome-devtools/css/
+
+- Debug JavaScript
+  - https://developers.google.com/web/tools/chrome-devtools/javascript/
+
+- View Messages and Run JavaScript in the Console
+  - https://developers.google.com/web/tools/chrome-devtools/console
+
+- Optimize Website Speed
+  - https://developers.google.com/web/tools/chrome-devtools/speed/get-started
+
+- Inspect Network Activity
+  - https://developers.google.com/web/tools/chrome-devtools/network/
+
+** Console
+
+*** Overview
+- https://developers.google.com/web/tools/chrome-devtools/console
+
+
+This page explains how the Chrome DevTools Console makes it easier to
+develop web pages. The Console has 2 main uses: viewing logged
+messages and running JavaScript.
+
+*** Reference
+- https://developers.google.com/web/tools/chrome-devtools/console/reference
+
+
+This page is a reference of features related to the Chrome DevTools
+Console.
+
+*** API Reference
+- https://developers.google.com/web/tools/chrome-devtools/console/api
+
+**** Assert
+
+**** Clear
+
+**** Count
+
+***** countReset
+
+**** Debug
+
+**** Dir
+
+***** dirXML
+
+**** Error
+
+**** Group
+
+***** groupCollapsed
+
+**** Info
+
+**** Log
+
+**** Table
+
+**** Time
+
+***** timeEnd
+
+**** Trace
+
+**** Warn
+
+** Utilities
+- https://developers.google.com/web/tools/chrome-devtools/console/utilities
 
 * Concept Index
 :PROPERTIES:
