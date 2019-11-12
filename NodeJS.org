@@ -1,9 +1,9 @@
 # -*- mode:org; -*-
 #+title:Node.js and Chrome Dev Tools
 #+subtitle:JavaScript on the Server and in the Browser --- {{{version}}} ({{{date}}})
-#+date:2019-11-01 18:24
+#+date:2019-11-11 22:14
 #+author:Pinecone062
-#+macro: version Version 0.0.5
+#+macro: version Version 0.0.6
 
 #+begin_src emacs-lisp :results silent :exports results
 (org-babel-tangle-file "NodeJS.org")
@@ -13,6 +13,9 @@
 :PROPERTIES:
 :unnumbered: t
 :END:
+
+- https://github.com/nodejs
+
 
 [[file:resources/nodejs-new-pantone-black-25.png]]
 
@@ -50,10 +53,10 @@ of a web library or framework.
 Node is primarily used in server applications, but Node can be
 installed on almost any machine and used for any purpose.
 
-** Install Node.js
+*** Install Node.js
 - [[https://nodejs.org/en/download/][Downloads page]]
 
-** Say Hello in Node
+*** Say Hello in Node
 Take a look at the “Hello, World” application included in the Node
 documentation.  To re-create the application, create a text document
 with the following JavaScript and save it as ~hello.js~.
@@ -134,7 +137,7 @@ function writes a plain text header with server status of 200 back to
 the browser, writes out the Hello World message, and then ends the
 response.
 
-** Hello World Tweaked
+**** Hello World Tweaked
 The tweaked code is in [[Example 1-2]].  In it, the application code is
 modified to parse the incoming request to look for a query string.
 The name in the string is extracted and used to determine the type of
@@ -196,6 +199,122 @@ Exported module properties can be chained, so we can both import the
 module and use its functions in the same line.  This frequently
 happens with the URL module, whose only purpose is to provide a URL
 utility.
+
+*** Node Hosting Environments
+When you’re ready to start providing greater access to your
+applications, you’ll either need to find an environment where you can
+run a Node application, such as:
+- a virtual private network (VPN) or
+- a host that specifically provides for Node application support
+
+**** Hosting Node on a Server---VPS---Managed Host
+#+cindex:VPS
+#+cindex:host Node application
+Hosting Node on a virtual private server (VPS) is a simple matter.
+
+- https://www.linode.com
+
+
+You do have root access for your VPS and can pretty much do whatever
+you want.  The issue, though, with a VPS is the same issue you’d have
+if you hosted your own server: you have to maintain the server.  This
+includes setting up an email system and an alternative web server,
+most likely Apache or Nginx, to handle firewalls and other security,
+email, etc.  It’s not trivial.
+
+If you’re comfortable with managing all aspects of a Internet-faced
+environment, a VPS can be an affordable option for hosting a Node
+application.  At least until you’re ready to push it into production,
+in which case you may want to look at hosting the application in the
+cloud.
+
+**** Cloud Hosting
+#+cindex:cloud
+Node applications are well-suited to cloud-based implementations.
+When you host a Node application in the cloud, what you’re really
+doing, typically, is creating the application on your own server or
+PC, testing it, making sure it’s what you want, and then pushing the
+application out to the cloud server.  A cloud server for Node allows
+you to create the Node application you want to create, using the
+resources of whatever database system or other system you wish, but
+without having to manage the server directly.  You can focus
+specifically on the Node application without having to worry about FTP
+or email servers, or general server maintenance.
+
+*** Node LTS and Upgrading
+One result of the merge is a strict timeline of Node releases, based
+on semantic versioning (Semver).  Semver releases features as three
+groups of numbers, each with a specific meaning.  I.e., Version 4.3.2:
+- The major release is 4 :: This number will only increase when a
+     major, backward- incompatible change is made to Node.
+- The minor release is 3 :: This number increases when new
+     functionality is added, but the functionality is still backward
+     compatible.
+- The patch release is 2 :: This number changes when security or other
+     bug fixes require a new release of the application. It is also
+     backward compatible.
+
+*** Node V8 ES6
+Behind Node is a JavaScript engine.  For most implementations, the
+engine is V8.  Originally created by Google for Chrome, the V8 source
+code was open-sourced in 2008.  The V8 JavaScript engine was created
+to improve the speed of JavaScript by incorporating a just-in-time
+(JIT) compiler that compiles JavaScript to machine code rather than
+interpreting it, which had been the norm for JavaScript for years.
+The V8 engine is written in C++.
+
+**** ES 2015
+When Node v4.0 released, it did so with support for V8 4.5, the same
+version of the engine being used by Chrome.  The Node maintainers are
+also committed to supporting upcoming versions of V8 as they’re
+released.  This means that Node now incorporates support for many of
+the new ECMA-262 (ECMAScript 2015 or ES6) features.  Node v6 supports
+V8 version 5.0, and new releases of Node will support newer versions
+of V8 accordingly.
+
+**** Harmony
+In prior versions of Node, to access the new ES6 features, you would
+have to use the harmony flag ({{{option(--harmony)}}}) when running the
+application:
+
+: node --harmony app.js
+
+Now, ES6 feature support is based on the following criteria (directly
+from the Node.js documentation):
+
+- shipping features :: are turned on by default on Node.js and do not
+     require any kind of runtime flag.
+
+- staged features :: require a runtime flag:
+     {{{option(--es_staging)}}} (or its synonym,
+     {{{option(--harmony)}}).
+
+- in-progress features :: can be activated individually by their
+     respective harmony flag (e.g.,
+     {{{option(--harmony_destructuring)}}}).
+
+
+the following are some of the ES6 features supported in Node:
+
+- classes
+- promises
+- symbols
+- arrow functions
+- generators
+- collections
+- let
+- spread operator
+
+*** Node C/C++
+Though the language used to create Node applications is based in
+JavaScript, much of Node is actually written in C++.  You can choose
+to extend Node functionality using C/C++ to create an add-on.  Writing
+a Node add-on is not the same as writing a more traditional C/C++
+application.  For one, there are libraries, such as the V8 library,
+that you’ll typically access.  For another, the Node add-on is not
+compiled using the tools you would normally use.  Once you’ve written
+the code, you’ll need to use a tool, ~node-gyp~, to actually compile
+the add-on into a ~.node~ file.
 
 * Global Objects
 
