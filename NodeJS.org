@@ -1,9 +1,9 @@
 # -*- mode:org; -*-
 #+title:Node.js and Chrome Dev Tools
 #+subtitle:JavaScript on the Server and in the Browser --- {{{version}}} ({{{date}}})
-#+date:2019-11-11 22:14
+#+date:2019-11-11 23:30
 #+author:Pinecone062
-#+macro: version Version 0.0.6
+#+macro: version Version 0.0.7
 
 #+begin_src emacs-lisp :results silent :exports results
 (org-babel-tangle-file "NodeJS.org")
@@ -316,11 +316,179 @@ compiled using the tools you would normally use.  Once you’ve written
 the code, you’ll need to use a tool, ~node-gyp~, to actually compile
 the add-on into a ~.node~ file.
 
-* Global Objects
+* Node Building Blocks
+The environments between browser-based applications and Node.js
+applications are very different.
 
-* Events
+One fundamental difference between Node and its browser-based
+JavaScript cousin is the buffer for binary data.  Most binary data
+functionality in Node is implemented with the =Buffer= class.  The
+=buffer= is one of Node’s global objects.
 
-* Asynchronous Model
+Two fundamental objects in Node are:
+- global
+- process
+
+
+The global object in Node is fundamentally different than the global
+object we’re used to in the browser.
+
+Node developers also have access to another global object, =process=,
+which provides a bridge between the Node application and its
+environment.  The =process= object is pure Node.
+
+One aspect of Node should be familiar to frontend developers, and
+that’s its event-driven asynchronous nature.  The difference in Node
+is that we’re waiting for files to open rather than for users to click
+a button.
+
+Other global components include:
+
+- require
+- exports
+- module
+- console
+
+** Global Objects
+In the browser, when you declare a variable at the top level, it’s
+declared globally.  It doesn’t work that way in Node.  When you
+declare a variable in a module or application in Node, the variable
+isn’t globally available; it’s restricted to the module or
+application.
+
+Eliminating a shared namespace is a distinct improvement, but it isn’t
+universal.  What =global= does share in all environments is access to
+all the globally available Node objects and functions, including the
+=process= object.
+
+*** Process
+The process object is an essential component of the Node environment,
+as it provides information about the runtime environment.  In
+addition, standard input/ output (I/O) occurs through process, you can
+gracefully terminate a Node application, and you can even signal when
+the Node event loop has finished a cycle.
+
+The process object provides access to information about the Node
+environment, as well as the runtime environment.  To explore, we’ll
+use the =-p= command-line option with node, which executes a script
+and returns an immediate result.  For instance, to check out the
+process.versions property, type the following:
+
+: $ node -p "process.versions"
+
+#+begin_example
+{ http_parser: '2.5.0',
+      node: '4.2.1',
+      v8: '4.5.103.35',
+      uv: '1.7.5',
+      zlib: '1.2.8',
+      ares: '1.10.1-DEV',
+      icu: '56.1',
+      modules: '46',
+      openssl: '1.0.2d' }
+#+end_example
+
+Versions for various Node components and dependencies are listed,
+including the version of V8, OpenSSL (the library used for secure
+communications), Node itself, and so on.
+
+The =process.env= property provides a great deal of information about
+what Node sees in your development/production environment:
+
+: $ node -p "process.env"
+
+To explore the process.release values, use the following:
+
+: $ node -p "process.release"
+
+#+begin_example
+{
+  name: 'node',
+  lts: 'Erbium',
+  sourceUrl: 'https://nodejs.org/download/release/v12.13.0/node-v12.13.0.tar.gz',
+  headersUrl: 'https://nodejs.org/download/release/v12.13.0/node-v12.13.0-headers.tar.gz'
+}
+#+end_example
+
+What should be consistent between Node releases are several objects
+and function.s essential for many applications.  Among them is access
+to the standard I/O, and the ability to gracefully end a Node
+application.
+
+Standard streams are pre-established communication channels between an
+application and the environment.  They consist of:
+
+- a standard input (stdin),
+- standard output (stdout), and
+- standard error (stderr)
+
+
+In a Node application, these channels provide communication between
+the Node application and the terminal.  They’re a way for you to
+communicate directly with the application.
+
+Node supports the channels with three process functions:
+
+- process.stdin: a readable stream for stdin
+- process.stdout: a writable stream for stdout
+- process.stderr: a writable stream for stderr
+
+
+The process I/O functions inherit from =EventEmitter=, which means
+they can emit events, and you can capture these events and process any
+data.  To process incoming data using =process.stdin=, you first of
+all need to set the encoding for the stream.  If you don’t, you’ll get
+the results as a buffer rather than a string:
+
+: process.stdin.setEncoding('utf8');
+
+Next we’ll listen for the =readable= event, which lets us know there’s
+a chunk of data, ready to be read.  We’ll then use the
+~process.stdin.read()~ function to read this data in, and if the data
+isn’t =null=, echo it back out to ~process.stdout~, using the
+~process.stdout.write()~ function:
+
+#+begin_src js -n
+  process.stdin.on('readable', function() {
+      var input = process.stdin.read();
+      if (input !== null) {
+          // echo the text
+          process.stdout.write(input);
+      }
+  });
+#+end_src
+
+Now, we could forgo setting the encoding, and get the same
+results---we’ll read a buffer in and write a buffer out---but to the
+user of the application, it looks like we’re working with text
+(strings).  We’re not, though.
+
+You can terminate an application as part of the application using
+~process.exit()~.  You can even signal whether the application
+terminated successfully or if a failure occurred.  We’ll modify the
+simple I/O test application to “listen” for an exit string, and then
+exit the program when it occurs.
+
+#+caption:Demonstrating standard I/O in Node, and exiting application
+#+name:process-stdin-with-exit
+#+header: :shebang "#!/usr/bin/env node"
+#+begin_src js -n :tangle src/stdin_with_exit.js
+  process.stdin.setEncoding('utf8');
+
+  process.stdin.on('readable', function() {
+      var input;
+      while((input = process.stdin.read()) !== null) {
+          // echo the text
+          process.stdout.write(input);
+          if (input.trim() == 'exit')
+              process.exit(0);
+     }
+  });
+#+end_src
+
+** Events
+
+** Asynchronous Model
 
 * Model System and Package Manager
 
