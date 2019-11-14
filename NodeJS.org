@@ -1,9 +1,9 @@
 # -*- mode:org; -*-
 #+title:Node.js and Chrome Dev Tools
 #+subtitle:JavaScript on the Server and in the Browser --- {{{version}}} ({{{date}}})
-#+date:2019-11-11 23:30
+#+date:2019-11-14 11:10
 #+author:Pinecone062
-#+macro: version Version 0.0.7
+#+macro: version Version 0.0.8
 
 #+begin_src emacs-lisp :results silent :exports results
 (org-babel-tangle-file "NodeJS.org")
@@ -49,14 +49,14 @@ HTTP is a first-class citizen in Node.js, designed with streaming and
 low latency in mind. This makes Node.js well suited for the foundation
 of a web library or framework.
 
-** The Node Environment
+* The Node Environment
 Node is primarily used in server applications, but Node can be
 installed on almost any machine and used for any purpose.
 
-*** Install Node.js
+** Install Node.js
 - [[https://nodejs.org/en/download/][Downloads page]]
 
-*** Say Hello in Node
+** Say Hello in Node
 Take a look at the “Hello, World” application included in the Node
 documentation.  To re-create the application, create a text document
 with the following JavaScript and save it as ~hello.js~.
@@ -137,7 +137,7 @@ function writes a plain text header with server status of 200 back to
 the browser, writes out the Hello World message, and then ends the
 response.
 
-**** Hello World Tweaked
+*** Hello World Tweaked
 The tweaked code is in [[Example 1-2]].  In it, the application code is
 modified to parse the incoming request to look for a query string.
 The name in the string is extracted and used to determine the type of
@@ -200,14 +200,14 @@ module and use its functions in the same line.  This frequently
 happens with the URL module, whose only purpose is to provide a URL
 utility.
 
-*** Node Hosting Environments
+** Node Hosting Environments
 When you’re ready to start providing greater access to your
 applications, you’ll either need to find an environment where you can
 run a Node application, such as:
 - a virtual private network (VPN) or
 - a host that specifically provides for Node application support
 
-**** Hosting Node on a Server---VPS---Managed Host
+*** Hosting Node on a Server---VPS---Managed Host
 #+cindex:VPS
 #+cindex:host Node application
 Hosting Node on a virtual private server (VPS) is a simple matter.
@@ -228,7 +228,7 @@ application.  At least until you’re ready to push it into production,
 in which case you may want to look at hosting the application in the
 cloud.
 
-**** Cloud Hosting
+*** Cloud Hosting
 #+cindex:cloud
 Node applications are well-suited to cloud-based implementations.
 When you host a Node application in the cloud, what you’re really
@@ -241,7 +241,7 @@ without having to manage the server directly.  You can focus
 specifically on the Node application without having to worry about FTP
 or email servers, or general server maintenance.
 
-*** Node LTS and Upgrading
+** Node LTS and Upgrading
 One result of the merge is a strict timeline of Node releases, based
 on semantic versioning (Semver).  Semver releases features as three
 groups of numbers, each with a specific meaning.  I.e., Version 4.3.2:
@@ -254,7 +254,7 @@ groups of numbers, each with a specific meaning.  I.e., Version 4.3.2:
      bug fixes require a new release of the application. It is also
      backward compatible.
 
-*** Node V8 ES6
+** Node V8 ES6
 Behind Node is a JavaScript engine.  For most implementations, the
 engine is V8.  Originally created by Google for Chrome, the V8 source
 code was open-sourced in 2008.  The V8 JavaScript engine was created
@@ -263,7 +263,7 @@ to improve the speed of JavaScript by incorporating a just-in-time
 interpreting it, which had been the norm for JavaScript for years.
 The V8 engine is written in C++.
 
-**** ES 2015
+*** ES 2015
 When Node v4.0 released, it did so with support for V8 4.5, the same
 version of the engine being used by Chrome.  The Node maintainers are
 also committed to supporting upcoming versions of V8 as they’re
@@ -272,7 +272,7 @@ the new ECMA-262 (ECMAScript 2015 or ES6) features.  Node v6 supports
 V8 version 5.0, and new releases of Node will support newer versions
 of V8 accordingly.
 
-**** Harmony
+*** Harmony
 In prior versions of Node, to access the new ES6 features, you would
 have to use the harmony flag ({{{option(--harmony)}}}) when running the
 application:
@@ -305,7 +305,7 @@ the following are some of the ES6 features supported in Node:
 - let
 - spread operator
 
-*** Node C/C++
+** Node C/C++
 Though the language used to create Node applications is based in
 JavaScript, much of Node is actually written in C++.  You can choose
 to extend Node functionality using C/C++ to create an add-on.  Writing
@@ -486,10 +486,194 @@ exit the program when it occurs.
   });
 #+end_src
 
-** Events
+** Buffers---Typed Arrays---Strings
+In browser-based JavaScript, in the early days, there never was a need
+to handle binary data (an octet stream).  Originally, JavaScript was
+meant to deal with string values accessed or output to alert windows
+or forms.  Even when Ajax changed the game, the data between client
+and server was string (Unicode) based.
 
-** Asynchronous Model
+Things changed, though, when the demands on JavaScript became more
+sophisticated.  Not only do we still have Ajax, but we also have
+WebSockets.  In addition, what we can do in the browser has
+expanded---rather than simple form access, we have new technologies
+such as WebGL and Canvas.
 
+The solution in JavaScript and in the browser is the =ArrayBuffer=,
+manipulated through typed arrays.  In Node, the solution is the
+=Buffer=.
+
+Originally, the two were not the same.  However, when ~io.js~ and
+~Node.js~ merged in Node v4.0.0, Node also received support for typed
+arrays via V8 v4.5.  The Node buffer is now backed by =Uint8Array=,
+one of the typed arrays representing an array of 8-bit unsigned
+integers.
+
+In Node, the =Buffer= class is the primary data structure used with
+most I/O, and you can’t swap in a typed array without your application
+failing.  In addition, converting a Node buffer to a typed array may
+be doable, but it’s not without issues.
+
+So you can use both types of octet stream handling in Node, but for
+the most part, you’re primarily using buffer.
+
+*** Buffers---JSON---StringDecoder---UTF8 Strings
+A Node buffer is raw binary data that’s been allocated outside the V8
+heap. It’s managed via a class, the =Buffer=.  Once allocated, the
+buffer can’t be resized.  The buffer is the default data type for file
+access: unless a specific encoding is provided when reading and
+writing to a file, the data is read into, or out of, a buffer.
+
+**** Creating a Node Buffer
+In Node v4, you can create a new buffer directly using the new
+keyword:
+: let buf = new Buffer(24);
+Creating a new Node buffer doesn’t initialize the contents.  You’ll
+want to fill the buffer as soon as you create it:
+: buf.fill(0); // fills buffer with zeros
+
+Beginning with Node v5.7.0, you can also specify an encoding for
+~buf.fill()~, using the syntax: 
+: buf.fill(string[, start[, end]] [, encoding]).
+
+You can also directly create a new buffer by passing the constructor
+function an array of octets, another buffer, or a string.  The buffer
+is created with the copied contents of all three.
+
+{{{heading(Node v6 Buffer Creation)}}}
+
+In Node v6, however, the constructors have been deprecated in favor of
+new Buffer methods to create new buffers: 
+- ~Buffer.from()~,
+- ~Buffer.alloc()~, and
+- ~Buffer.allocUnsafe()~.
+
+***** Buffer.from() Method
+With the ~Buffer.from()~ function, passing in an array returns a
+buffer with a copy of the contents.  However, if you pass in an
+=ArrayBuffer=, with optional byte offset and length, the buffer shares
+the same memory as the =ArrayBuffer=.  Passing in a buffer copies the
+contents of the buffer, and passing in a string copies the string.
+
+***** Buffer.alloc() Method
+The ~Buffer.alloc()~ function creates a filled buffer of a certain
+size.
+
+***** Buffer.allocUnsafe() Method
+The ~Buffer.allocUnsafe()~ method creates a buffer of a certain size,
+but may contain old or sensitive data, and will then need to be
+filled, with ~buf.fill()~ to ensure otherwise.
+
+**** JSON and Buffers
+Buffers can convert to JSON, as well as strings.
+
+#+begin_src js -n
+"use strict";
+let buf = Buffer.from('This is my pretty example');
+    let json = JSON.stringify(buf);
+    console.log(json);
+#+end_src
+
+This results in the output:
+
+#+begin_example
+{
+    "type":"Buffer",
+    "data":[84,104,105,115,32,105,115,32,109,121,32,112,114,101,116,
+            116,121,32,101,120,97,109,112,108,101]
+}
+#+end_example
+
+The JSON specifies that the type of object being transformed is a
+=Buffer=, and its data follows.  Of course, what we’re seeing is the
+data after it’s been stored in a buffer as a sequence of octets, which
+aren’t human-readable.
+
+To go full circle, we can parse the buffer data back out of the JSON
+object, and then use the ~Buffer.toString()~ method to convert to a
+string.
+
+#+begin_src js -n
+"use strict";
+let buf = Buffer.from('This is my pretty example');
+let json = JSON.stringify(buf);
+let buf2 = Buffer.from(JSON.parse(json).data); 
+
+console.log(buf2.toString()); // this is my pretty example
+#+end_src
+
+**** StringDecoder and Buffers
+Using ~Buffer.toString()~ isn’t the only way we can convert a buffer
+to a string.  We can also use a helper class, =StringDecoder=.  This
+object’s sole purpose is to decode buffer values to UTF-8 strings, but
+it does so with a little more flexibility and recoverability.
+
+If the ~buffer.toString()~ method gets an incomplete UTF-8 character
+sequence, it returns gibberish.  The =StringDecoder=, on the other
+hand, buffers the incomplete sequence until it’s complete and then
+returns the result.  If you’re receiving a UTF-8 result as chunks in a
+stream, you should use =StringDecoder=.
+
+You can also convert a string to an existing buffer using
+~buffer.write()~.  It’s important, though, that the buffer be
+correctly sized to hold the number of octets necessary for the
+characters.
+
+*** Buffer Manipulation
+
+{{{heading(Reading and Writing Buffer Contents)}}}
+
+You can read and write buffer contents at a given offset with a
+variety of typed functions.  You can also read each individual 8-bit
+integer, using ~buffer.readUInt8()~.
+
+Node supports reading in and writing out signed and unsigned 8-, 16-,
+and 32-bit integers, as well as floats and doubles. For all types
+other than the 8-bit integers, you can also pick whether you want
+little-endian or big-endian format.  You can also write 8-bit integers
+directly using an array-like format: ~buf[0] = 0x63~.
+
+{{{heading(Create Slices of Buffers using ~slice()~)}}}
+
+In addition to reading and writing to a specific buffer offset, you
+can also create a new buffer consisting of a section of the old, using
+~buffer.slice()~.  Modifying the contents of the new buffer also
+modifies the contents of the old buffer.
+
+{{{heading(Testing Buffer Equality with ~equals()~)}}}
+
+If you ever need to test whether buffers are equivalent, you can use
+the ~buffer.equals()~ function:
+: if (buf1.equals(buf2)) console.log('buffers are equal');
+
+{{{heading(Copying Buffer Contents with ~copy()~)}}}
+
+You can also copy the bytes from one buffer to another using
+~buffer.copy()~.  You can copy all or part of the bytes using optional
+parameters.
+
+{{{heading(Comparing Buffers using ~compare()~)}}}
+
+If you need to compare buffers, you can use ~buffer.compare()~, which
+returns a value indicating whether the compared buffer lexically comes
+before or after.  If the compared buffer comes before, a value of -1
+is returned; after, a value of 1.  If the two buffers have equivalent
+bytes, a value of 0 is returned:
+
+*** SlowBuffer
+Deprecated.  Use ~Buffer.allocUnsaveSlow()~ instead.
+
+** Asynchronous Event Handling
+
+*** Event Queue
+
+*** Asynchronous Callback Functions
+
+*** EventEmitter
+
+*** Event Loop and Timers
+
+** Nested Callbacks and Exception Handling
 * Model System and Package Manager
 
 * REPL and Console
