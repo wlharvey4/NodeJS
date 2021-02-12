@@ -1,7 +1,7 @@
 # -*- mode:org; -*-
 #+title:Node.js and Chrome Dev Tools
 #+subtitle:JavaScript on the Server and in the Browser --- {{{version}}} ({{{date}}})
-#+date:2019-11-14 11:10
+#+date:2020-12-19 19:09
 #+author:Pinecone062
 #+macro: version Version 0.0.8
 
@@ -273,9 +273,9 @@ V8 version 5.0, and new releases of Node will support newer versions
 of V8 accordingly.
 
 *** Harmony
-In prior versions of Node, to access the new ES6 features, you would
-have to use the harmony flag ({{{option(--harmony)}}}) when running the
-application:
+In prior versions  of Node, to access the new  ES6 features, you would
+have to use the harmony  flag ( {{{option(--harmony)}}} ) when running
+the application:
 
 : node --harmony app.js
 
@@ -287,7 +287,7 @@ from the Node.js documentation):
 
 - staged features :: require a runtime flag:
      {{{option(--es_staging)}}} (or its synonym,
-     {{{option(--harmony)}}).
+     {{{option(--harmony)}}}.
 
 - in-progress features :: can be activated individually by their
      respective harmony flag (e.g.,
@@ -1159,6 +1159,7 @@ Console.
 * Macro Definitions                                                :noexport:
 #+macro:heading @@texinfo:@heading @@$1
 #+macro:subheading @@texinfo:@subheading @@$1
+#+macro:option @@texinfo:@option{@@$1@@texinfo:}@@
 * Local Variables                                                  :noexport:
 
 * Footnotes
